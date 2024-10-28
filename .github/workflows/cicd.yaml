@@ -104,5 +104,7 @@ jobs:
           script: |
             cd ${{ github.repository.name }}
             git pull origin main
+            echo pwd
+            echo ll
             echo "⭐️ 배포 완료"
             # 추가적인 배포 명령어들
