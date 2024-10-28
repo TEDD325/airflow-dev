@@ -96,7 +96,7 @@ jobs:
             cd
             CURRENT_DIR=$(pwd)
             echo "$CURRENT_DIR"
-            cd $CURRENT_DIR/${{ github.repository.name }}
+            cd $CURRENT_DIR/airflow-dev
             echo "현재 위치: $(pwd)"
             git pull origin main
             echo "⭐️ 배포 완료"
