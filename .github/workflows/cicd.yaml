@@ -87,13 +87,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Deploy Application
+        env:
+          REPOSITORY_NAME: ${{ github.repository.name }}
         uses: appleboy/ssh-action@master
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          env:
-          REPOSITORY_NAME: ${{ github.repository.name }}
           script: |
             cd
             CURRENT_DIR=$(pwd)
