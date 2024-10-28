@@ -97,6 +97,7 @@ jobs:
             CURRENT_DIR=$(pwd)
             echo "$CURRENT_DIR"
             cd $CURRENT_DIR/${{ github.repository.name }}
+            echo "현재 위치: $(pwd)"
             git pull origin main
             echo "⭐️ 배포 완료"
             # 추가적인 배포 명령어들
