@@ -1,4 +1,4 @@
-name: Deployment Workflow
+name: Initialization and Deployment Workflow
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  integration:
+  initialization:
     runs-on: ubuntu-latest
     
     steps:
