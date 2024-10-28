@@ -30,6 +30,11 @@ jobs:
               bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
               echo "export PATH=\"$HOME/miniconda/bin:\$PATH\"" >> ~/.bashrc
               source ~/.bashrc
+              conda create -n airflow-practice python=3.11 -y
+              conda activate airflow-practice
+              pip install poetry
+              pip install pre-commit
+              conda deactivate
 
               echo "⭐️ 시스템 업데이트 및 PostgreSQL 설치"
               sudo apt update && sudo apt -y upgrade
