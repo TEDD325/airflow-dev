@@ -95,6 +95,7 @@ jobs:
           script: |
             cd
             CURRENT_DIR=$(pwd)
+            echo "$CURRENT_DIR"
             cd $CURRENT_DIR/${{ github.repository.name }}
             git pull origin main
             echo "⭐️ 배포 완료"
