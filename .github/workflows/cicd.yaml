@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Initial Server Setup
-        if: steps.check_setup.outputs.needs_setup == 'true'
+        # if: steps.check_setup.outputs.needs_setup == 'true'
         uses: appleboy/ssh-action@master
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
