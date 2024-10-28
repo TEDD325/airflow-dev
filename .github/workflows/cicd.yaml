@@ -93,8 +93,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           script: |
-            PUBLIC_KEY=$(pwd)
-            cd $PUBLIC_KEY/${{ github.repository.name }}
+            cd
+            CURRENT_DIR=$(pwd)
+            cd $CURRENT_DIR/${{ github.repository.name }}
             git pull origin main
             echo "⭐️ 배포 완료"
             # 추가적인 배포 명령어들
