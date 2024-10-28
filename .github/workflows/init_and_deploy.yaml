@@ -45,6 +45,10 @@ jobs:
               sudo apt-get -y install docker-ce docker-ce-cli containerd.io
               sudo usermod -aG docker ${{ secrets.SSH_USERNAME }}
               sudo service docker restart
+              sudo su -
+              su - ubuntu
+
+              echo "⭐️ docker compose 설치"
               sudo apt -y install docker-compose
 
               echo "⭐️ SSH 키 생성 및 GitHub에 등록"
