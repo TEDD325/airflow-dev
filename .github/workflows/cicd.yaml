@@ -1,0 +1,85 @@
+name: Deployment Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Initial Server Setup
+        if: steps.check_setup.outputs.needs_setup == 'true'
+        uses: appleboy/ssh-action@master
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          script: |
+            # 설정 완료 표시 파일 확인
+            if [ ! -f /home/${{ secrets.SSH_USERNAME }}/.setup_done ]; then
+              # Git 설정
+              git config --global user.name "DOHK team"
+              git config --global user.email "dohk@team.com"
+
+              # Miniconda 설치
+              wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+              bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+              echo "export PATH=\"$HOME/miniconda/bin:\$PATH\"" >> ~/.bashrc
+              source ~/.bashrc
+
+              # 시스템 업데이트 및 PostgreSQL 설치
+              sudo apt update && sudo apt -y upgrade
+              sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+              wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+              sudo apt-get update -y
+              sudo apt-get -y install postgresql-14 apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+
+              # Docker 설치
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+              sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+              sudo apt-get update -y
+              sudo apt-get -y install docker-ce docker-ce-cli containerd.io
+              sudo usermod -aG docker ${{ secrets.SSH_USERNAME }}
+              sudo service docker restart
+              sudo apt -y install docker-compose
+
+              # SSH 키 생성 및 GitHub 등록
+              ssh-keygen -t rsa -b 4096 -C "dohk@team.com" -f ~/.ssh/id_rsa -N ""
+              PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)
+              curl -H "Authorization: token ${{ secrets.TOKEN }}" \
+                   -X POST \
+                   -d "{\"title\":\"Server SSH Key\",\"key\":\"$PUBLIC_KEY\"}" \
+                   https://api.github.com/user/keys
+
+              # Astronomer 설치 및 Airflow 시작
+              curl -sSL install.astronomer.io | sudo bash -s -- v1.25.0 
+              git clone git@github.com:TEDD325/airflow-dev.git
+              cd airflow-dev
+              astro dev start &
+              sleep 300
+              pkill astro
+
+              # 설정 완료 표시
+              touch /home/${{ secrets.SSH_USERNAME }}/.setup_done
+            fi
+
+      - name: Deploy Application
+        uses: appleboy/ssh-action@master
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          script: |
+            cd ${{ vars.project_path }}/${{ github.event.repository.name }}
+            git pull origin main
