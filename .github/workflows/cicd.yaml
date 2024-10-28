@@ -22,41 +22,16 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           script: |
             if [ ! -f /home/${{ secrets.SSH_USERNAME }}/.setup_done ]; then
-              echo "⭐️ Git 설정"
-              git config --global user.name "DOHK team"
-              git config --global user.email "dohk@team.com"
-
-              echo "⭐️ Miniconda 설치"
-              wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-              bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
-              echo "export PATH=\"$HOME/miniconda/bin:\$PATH\"" >> ~/.bashrc
-              source ~/.bashrc
-
-              echo "⭐️ 시스템 업데이트 및 PostgreSQL 설치"
-              sudo apt update && sudo apt -y upgrade
-              sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-              wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-              sudo apt-get update -y
-              sudo apt-get -y install postgresql-14 apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-
-              echo "⭐️ Docker 설치 및 Docker 권한 부여"
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-              sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-              sudo apt-get update -y
-              sudo apt-get -y install docker-ce docker-ce-cli containerd.io
-              sudo usermod -aG docker ${{ secrets.SSH_USERNAME }}
-              sudo service docker restart
-              sudo apt -y install docker-compose
-
               echo "⭐️ SSH 키 생성 및 GitHub에 등록"
-              ssh-keygen -t rsa -b 4096 -C "dohk@team.com" -f ~/.ssh/id_rsa -N ""
+              ssh-keygen -t rsa -b 4096 -C "dohk325@gmail.com" -f ~/.ssh/id_rsa -N ""
+              ssh-keyscan github.com >> ~/.ssh/known_hosts
               PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)
-              curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              curl -H "Authorization: token ${{ secrets.TOKEN }}" \
                   -X POST \
                   -d "{\"title\":\"Server SSH Key\",\"key\":\"$PUBLIC_KEY\"}" \
                   https://api.github.com/user/keys
 
-              echo "Astronomer 설치 및 Airflow 시작"
+              echo "⭐️ Astronomer 설치 및 Airflow 시작"
               curl -sSL install.astronomer.io | sudo bash -s -- v1.25.0 
               git clone git@github.com:TEDD325/airflow-dev.git
               cd airflow-dev
