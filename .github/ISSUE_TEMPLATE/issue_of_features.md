@@ -1,6 +1,6 @@
 ---
 name: "Feature Creation"
-about: ""
+about: "Use this template for tracking new features."
 title: "[FEAT] 기능 요약"
 labels: enhancement
 assignees: ''

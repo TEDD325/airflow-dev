@@ -1,6 +1,6 @@
 ---
 name: "Bug Report"
-about: ""
+about: "Use this template for tracking bugs."
 title: "[BUG] 버그 요약"
 labels: bug
 assignees: ''
