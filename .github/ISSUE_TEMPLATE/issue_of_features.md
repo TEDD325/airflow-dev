@@ -1,3 +1,11 @@
+---
+name: "Feature Creation"
+about: ""
+title: "[FEAT] 기능 요약"
+labels: enhancement
+assignees: ''
+---
+
 ## What
 - 무슨 작업을 하는가?
 
