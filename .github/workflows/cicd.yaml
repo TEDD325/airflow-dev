@@ -92,11 +92,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
+          env:
+          REPOSITORY_NAME: ${{ github.repository.name }}
           script: |
             cd
             CURRENT_DIR=$(pwd)
-            echo "$CURRENT_DIR"
-            cd $CURRENT_DIR/airflow-dev
+            cd $CURRENT_DIR/$REPOSITORY_NAME
             echo "현재 위치: $(pwd)"
             git pull origin main
             echo "⭐️ 배포 완료"
