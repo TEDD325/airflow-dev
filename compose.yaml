@@ -16,29 +16,29 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
-    driver: local
+  # postgres_data:
+    # driver: local
   airflow_logs:
     driver: local
 
 services:
-  postgres:
-    image: docker.io/postgres:12.6
-    restart: unless-stopped
-    networks:
-      - airflow
-    labels:
-      io.astronomer.docker: "true"
-      io.astronomer.docker.cli: "true"
-    ports:
-      - 127.0.0.1:5432:5432
-    volumes:
+  # postgres:
+    # image: docker.io/postgres:12.6
+    # restart: unless-stopped
+    # networks:
+    #   - airflow
+    # labels:
+    #   io.astronomer.docker: "true"
+    #   io.astronomer.docker.cli: "true"
+    # ports:
+    #   - 127.0.0.1:5432:5432
+    # volumes:
       
-      - postgres_data:/var/lib/postgresql/data
+    #   - postgres_data:/var/lib/postgresql/data
       
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+    # environment:
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: postgres
 
   scheduler:
     image: airflow-practice_b3202a/airflow:latest
@@ -52,8 +52,8 @@ services:
       io.astronomer.docker: "true"
       io.astronomer.docker.cli: "true"
       io.astronomer.docker.component: "airflow-scheduler"
-    depends_on:
-      - postgres
+    # depends_on:
+    #   - postgres
     environment: *common-env-vars
     volumes:
       - /home/ubuntu/airflow-practice/dags:/usr/local/airflow/dags:z
@@ -87,7 +87,7 @@ services:
       io.astronomer.docker.component: "airflow-webserver"
     depends_on:
       - scheduler
-      - postgres
+      # - postgres
     environment: *common-env-vars
     ports:
       - 127.0.0.1:8080:8080
@@ -119,8 +119,8 @@ services:
       io.astronomer.docker: "true"
       io.astronomer.docker.cli: "true"
       io.astronomer.docker.component: "airflow-triggerer"
-    depends_on:
-      - postgres
+    # depends_on:
+    #   - postgres
     environment: *common-env-vars
     volumes:
       - /home/ubuntu/airflow-practice/dags:/usr/local/airflow/dags:z
