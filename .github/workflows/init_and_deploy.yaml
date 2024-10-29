@@ -35,6 +35,7 @@ jobs:
               conda activate airflow-practice
               pip install poetry
               pip install pre-commit
+              conda install pandas
               conda deactivate
 
               echo "⭐️ 시스템 업데이트 및 PostgreSQL 설치"
