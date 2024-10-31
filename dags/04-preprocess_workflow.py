@@ -25,6 +25,7 @@
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.empty import EmptyOperator
 import pendulum
 import logging
 
@@ -37,7 +38,7 @@ with DAG(
     start_date=pendulum.datetime(2024, 10, 31, tz="Asia/Seoul"),
     catchup=False
 ) as dag:
-    def read_logs(**kwargs):
+    def read_logs(task_instance):
         import pandas as pd
         # ⭐️ 특정 패키지가 Task 내에서만 쓰일 경우, Task 내에 import하는 것이 좋다.(권장)⭐️ 
         logger.info(f"pandas version: \n{pd.__version__}\n\n")
@@ -49,6 +50,20 @@ with DAG(
         # 불러온 데이터의 모습 살펴보기
         desctiption_df = df.describe()
         logger.info(f"description about df: \n{desctiption_df}\n\n")
+        
+        task_instance.xcom_push(key="df", value=df)
+        # https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/xcoms.html
+        
+    
+    def preprocess_logs(task_instance):
+        import pandas as pd
+        # ⭐️ 특정 패키지가 Task 내에서만 쓰일 경우, Task 내에 import하는 것이 좋다.(권장)⭐️ 
+        # 워크플로우 전체에서 쓰이거나 반복적으로 import해야하는 이런 경우는 그냥 최상단에 import하는 것이 좋다.
+        
+        # xcom으로 데이터 불러오기
+        df = task_instance.xcom_pull(
+            key="df"
+        )
         
         # 불러온 데이터의 column 확인하기
         columns_df = df.columns
@@ -107,12 +122,13 @@ with DAG(
             'status_code': 'string'
         })
         logger.info(f"merge_df.dtypes: {merge_df.dtypes}")
-    
-    def preprocess_logs(**kwargs):
-        pass
+        
     
     def insert_logs_to_db(**kwagrs):
         pass
+    
+    start_task = EmptyOperator(task_id="start_task")
+    end_task = EmptyOperator(task_id="end_task")
     
     read_logs_task = PythonOperator(
         task_id="read_logs_task",
@@ -126,3 +142,5 @@ with DAG(
         task_id="insert_logs_to_db_task",
         python_callable=insert_logs_to_db,
     )
+    
+    start_task >> read_logs_task >> preprocess_logs_task >> insert_logs_to_db_task >> end_task
