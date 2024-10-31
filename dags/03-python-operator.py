@@ -12,7 +12,7 @@ with DAG(
     catchup=False
 ) as dag:
     def merge_logs(format: str):
-        log_files_list = glob.glob(f"data/*.{format}")
+        log_files_list = glob.glob(f"data/logs/*.{format}")
         merged_log_contents = ""
         for file in log_files_list:
             with open(file, "r") as f:
