@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import inspect
 
 if __name__ == "__main__":
     load_dotenv(dotenv_path='.env')
@@ -42,7 +43,14 @@ if __name__ == "__main__":
         endpoint = Column(String)
         status_code = Column(String)
         
+    # 테이블이 존재하는지 검사
+    inspector = inspect(engine)
+    
     # 테이블이 존재하지 않으면 생성하는 코드
-    Base.metadata.create_all(engine)
+    if not inspector.has_table(TABLE_NAME):
+        Base.metadata.create_all(engine, tables=[LogsTable.__table__])
+        print(f"{TABLE_NAME} 테이블이 생성되었습니다.")
+    else:
+        print(f"{TABLE_NAME} 테이블이 이미 존재합니다.")
     
     # DBeaver에서 확인
