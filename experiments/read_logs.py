@@ -1,6 +1,6 @@
 import pandas as pd
 
-if __name__ == "__main__":
+def read_log():
     print(f"pandas version: \n{pd.__version__}\n\n")
     
     # pandas로 데이터 불러오기
@@ -96,3 +96,8 @@ if __name__ == "__main__":
         'status_code': 'string'
     })
     print(f"merge_df.dtypes: {merge_df.dtypes}")
+    
+    return merge_df
+
+if __name__ == "__main__":
+    df = read_log()
