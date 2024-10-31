@@ -71,6 +71,8 @@ services:
       - /home/ubuntu/airflow-practice/include:/usr/local/airflow/include:z
       - /home/ubuntu/airflow-practice/tests:/usr/local/airflow/tests:z
 
+      - /home/ubuntu/airflow-practice/data/logs:/usr/local/airflow/data/logs:z
+
       
       - airflow_logs:/usr/local/airflow/logs
       
@@ -107,6 +109,8 @@ services:
       - /home/ubuntu/airflow-practice/include:/usr/local/airflow/include:z
       - /home/ubuntu/airflow-practice/tests:/usr/local/airflow/tests:z
       
+      - /home/ubuntu/airflow-practice/data/logs:/usr/local/airflow/data/logs:z
+
       - airflow_logs:/usr/local/airflow/logs
       
     healthcheck:
@@ -138,5 +142,7 @@ services:
       - /home/ubuntu/airflow-practice/dags:/usr/local/airflow/dags:z
       - /home/ubuntu/airflow-practice/plugins:/usr/local/airflow/plugins:z
       - /home/ubuntu/airflow-practice/include:/usr/local/airflow/include:z
+
+      - /home/ubuntu/airflow-practice/data/logs:/usr/local/airflow/data/logs:z
       
       - airflow_logs:/usr/local/airflow/logs
