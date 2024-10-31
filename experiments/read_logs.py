@@ -38,11 +38,11 @@ if __name__ == "__main__":
                 # ex. PATCH /events HTTP/1.1 ---> PATCH 와 /events 로
         # date_and_time에서 괄호 제거
         # 각 컬럼별로 타입이 적절한가?
-            # IP: str
+            # IP: string
             # date_and_time: timestamp
-            # http_methods: str
-            # endpoint: str
-            # status_code: str
+            # http_methods: string
+            # endpoint: string
+            # status_code: string
 
     # http_method와 endpoint를 추출
     print(f"truncated_df.http_methods_and_endpoint: \n{truncated_df.http_methods_and_endpoint}\n\n")
@@ -77,3 +77,22 @@ if __name__ == "__main__":
     print(f"merge_df: \n{merge_df}\n\n")
     merge_df.columns = ["IP", "timestamp", "status_code", "http_method", "endpoint"]
     print(f"merge_df: \n{merge_df}\n\n")
+    
+    # timestamp에서 괄호 제거
+    # print(merge_df['timestamp'].str.strip('[]'))
+    merge_df['timestamp'] = merge_df['timestamp'].str.strip(to_strip='[]')
+    print(f"merge_df: \n{merge_df}\n\n")
+    
+    # 타입 변경
+    # print(pd.to_datetime(merge_df['timestamp'], format='%d/%b/%Y:%H:%M:%S'))
+    merge_df['timestamp'] = pd.to_datetime(arg=merge_df['timestamp'], format='%d/%b/%Y:%H:%M:%S')
+    print(f"merge_df: \n{merge_df}\n\n")
+    
+    # 나머지 열을 문자열 타입으로 변환
+    merge_df = merge_df.astype({
+        'IP': 'string',
+        'http_method': 'string',
+        'endpoint': 'string',
+        'status_code': 'string'
+    })
+    print(f"merge_df.dtypes: {merge_df.dtypes}")
