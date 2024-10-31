@@ -173,16 +173,16 @@ with DAG(
         # 테이블이 존재하지 않으면 생성하는 코드
         if not inspector.has_table(TABLE_NAME):
             Base.metadata.create_all(engine, tables=[LogsTable.__table__])
-            print(f"{TABLE_NAME} 테이블이 생성되었습니다.")
+            logger.info(f"{TABLE_NAME} 테이블이 생성되었습니다.")
         else:
-            print(f"{TABLE_NAME} 테이블이 이미 존재합니다.")
+            logger.warning(f"{TABLE_NAME} 테이블이 이미 존재합니다.")
         
         # ✅
         df = task_instance.xcom_pull(
             key="preprocessed_log"
         )
         
-        print(f"df: {df}")
+        logger.info(f"df: {df}")
         
         # 데이터베이스 적재
         sessionObject = sessionmaker(bind=engine)
@@ -194,9 +194,9 @@ with DAG(
                 # Bulk insert
                 session.bulk_insert_mappings(LogsTable, records)
                 session.commit()
-                print(f"{len(records)}개의 레코드가 {TABLE_NAME} 테이블에 삽입되었습니다.")
+                logger.info(f"{len(records)}개의 레코드가 {TABLE_NAME} 테이블에 삽입되었습니다.")
         except Exception as e:
-            print(f"데이터 삽입 중 오류가 발생했습니다: {e}")
+            logger.error(f"데이터 삽입 중 오류가 발생했습니다: {e}")
             
     
     start_task = EmptyOperator(task_id="start_task")
