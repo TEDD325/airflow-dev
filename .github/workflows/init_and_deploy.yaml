@@ -81,9 +81,18 @@ jobs:
               if grep -q "bind: address already in use" astro_error.log; then
                 echo "‼️ 포트 5432가 이미 사용 중입니다. Astro 프로세스를 종료합니다."
                 pkill astro
+                sudo systemctl stop postgresql
               fi
               pkill astro
               astro dev stop && astro dev kill
+
+              echo "⭐️ airflow plugins 폴더 권한 변경 완료"
+              sudo chown ubuntu plugins
+              sudo chgrp ubuntu plugins
+
+              echo "⭐️ conda 환경 변수 적용 완료"
+              conda init
+              source ~/.bashrc
 
               echo "⭐️ 설정 완료"
               touch /home/${{ secrets.SSH_USERNAME }}/.setup_done
