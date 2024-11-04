@@ -7,6 +7,25 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import seaborn as sns
 import matplotlib.pyplot as plt
 from generate_data import generate_similar_data
+import hashlib
+from datetime import datetime
+import os
+
+
+def generate_model_filename():
+    """
+    현재 시간을 기반으로 SHA256 해시값을 생성하여 모델 파일명을 생성합니다.
+    """
+    # 현재 시간을 문자열로 변환
+    current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    # SHA256 해시 생성
+    hash_object = hashlib.sha256(current_time.encode())
+    hash_value = hash_object.hexdigest()[:10]  # 앞 10자리만 사용
+    
+    # 파일명 생성
+    filename = f"lung_cancer_model_{hash_value}.cbm"
+    return filename
 
 # 1. 데이터 로드 및 기본 전처리
 def load_and_preprocess_data(data):
@@ -36,7 +55,14 @@ def plot_feature_importance(model, feature_names):
     plt.show()
 
 # 3. 메인 모델링 파이프라인
-def train_catboost_model(data):
+def train_catboost_model(data, model_dir='models'):
+    """
+    CatBoost 모델을 학습하고 저장합니다.
+    
+    Parameters:
+    - data: 학습할 데이터
+    - model_dir: 모델을 저장할 디렉토리
+    """
     # 데이터 전처리
     data = load_and_preprocess_data(data)
     
@@ -51,8 +77,8 @@ def train_catboost_model(data):
     
     # CatBoost 모델 정의
     model = CatBoostClassifier(
-        iterations=500,
-        learning_rate=0.1,
+        iterations=1000,
+        learning_rate=0.001,
         depth=6,
         loss_function='Logloss',
         random_seed=42,
@@ -86,11 +112,46 @@ def train_catboost_model(data):
     # 특성 중요도 시각화
     plot_feature_importance(model, X.columns)
     
-    return model
+    # 모델 저장 디렉토리 생성
+    os.makedirs(model_dir, exist_ok=True)
+    
+    # 시간 기반 해시를 포함한 파일명 생성
+    model_filename = generate_model_filename()
+    model_path = os.path.join(model_dir, model_filename)
+    
+    # 모델 저장
+    model.save_model(model_path)
+    print(f"\n모델이 저장되었습니다: {model_path}")
+    
+    return model, model_path
 
-# 데이터 로드 및 모델 학습 실행
-data = pd.read_csv('data/lung_cancer/survey_lung_cancer.csv')
-model = train_catboost_model(data)
+
+# 모델 로드 함수
+def load_catboost_model(model_path):
+    """
+    저장된 CatBoost 모델을 불러옵니다.
+    
+    Parameters:
+    - model_path: 저장된 모델의 경로
+    
+    Returns:
+    - loaded_model: 불러온 CatBoost 모델
+    """
+    from catboost import CatBoostClassifier
+    
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"모델 파일을 찾을 수 없습니다: {model_path}")
+    
+    # 모델 불러오기
+    loaded_model = CatBoostClassifier()
+    loaded_model.load_model(model_path)
+    print(f"\n모델을 불러왔습니다: {model_path}")
+    
+    return loaded_model
+
+# # 데이터 로드 및 모델 학습 실행
+# data = pd.read_csv('data/lung_cancer/survey_lung_cancer.csv')
+# model = train_catboost_model(data)
 
 # 새로운 데이터에 대한 예측 함수
 def predict_lung_cancer(model, new_data):
@@ -115,16 +176,39 @@ def predict_lung_cancer(model, new_data):
     return prediction, probability
 
 
-# 원본 데이터 로드
-data = pd.read_csv('data/lung_cancer/survey_lung_cancer.csv')
+# # 원본 데이터 로드
+# data = pd.read_csv('data/lung_cancer/survey_lung_cancer.csv')
 
-# 새로운 유사 데이터 10개 생성
-new_samples = generate_similar_data(data, n_samples=10)
+# # 새로운 유사 데이터 10개 생성
+# new_samples = generate_similar_data(data, n_samples=10)
 
-# 결과 출력
-print("\n생성된 새로운 데이터 샘플:")
-print(new_samples.to_string(index=False))
+# # 결과 출력
+# print("\n생성된 새로운 데이터 샘플:")
+# print(new_samples.to_string(index=False))
     
-pred, prob = predict_lung_cancer(model, new_samples)
-print(f"prediced value: {pred}")
-print(f"probability value: {prob}")
+# pred, prob = predict_lung_cancer(model, new_samples)
+# print(f"prediced value: {pred}")
+# print(f"probability value: {prob}")
+
+# 메인 실행 코드 수정
+if __name__ == "__main__":
+    # 데이터 로드 및 모델 학습
+    data = pd.read_csv('data/lung_cancer/survey_lung_cancer.csv')
+    
+    # 모델 학습 및 저장
+    model, model_path = train_catboost_model(data, 'models')
+    
+    # 새로운 유사 데이터 생성
+    new_samples = generate_similar_data(data, n_samples=10)
+    print(f"\n 새로운 데이터")
+    print(new_samples)
+    print(end="\n\n")
+    
+    # 저장된 모델 불러오기
+    loaded_model = load_catboost_model(model_path)
+    
+    # 새로운 데이터로 예측
+    pred, prob = predict_lung_cancer(loaded_model, new_samples)
+    print(f"\n<예측 결과>")
+    print(f"예측 클래스: {pred}")
+    print(f"예측 확률: {prob}")
