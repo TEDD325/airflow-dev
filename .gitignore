@@ -11,3 +11,4 @@ airflow.cfg
 airflow.db
 astro_error.log
 /home/ubuntu/airflow-practice/data/spark/log-large.csv
+catboost_info/
