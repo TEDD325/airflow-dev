@@ -12,6 +12,10 @@ sqlalchemy = "1.4.52"
 python-dotenv = "^1.0.1"
 psycopg2-binary = "^2.9.10"
 pyspark = "^3.5.3"
+pybind11 = "2.12"
+scikit-learn = "^1.5.2"
+catboost = "^1.2.7"
+seaborn = "^0.13.2"
 
 
 [build-system]
