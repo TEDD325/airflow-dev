@@ -16,6 +16,7 @@ pybind11 = "2.12"
 scikit-learn = "^1.5.2"
 catboost = "^1.2.7"
 seaborn = "^0.13.2"
+torch = "^2.5.1"
 
 
 [build-system]
