@@ -147,7 +147,7 @@ with DAG(
         TABLE_NAME = "logs_table_created_by_dohyung"
 
         load_dotenv(dotenv_path='.env')
-        postgresql_connection_info = os.getenv("AIRFLOW__DATABASE__SQL_ALCHEMY_CONN")
+        postgresql_connection_info = os.getenv("BACKEND_DB")
         postgresql_connection_info += '/postgres'
 
         engine = create_engine(
